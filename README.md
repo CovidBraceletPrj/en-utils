@@ -10,7 +10,7 @@ git submodule update --init --recursive
 ```
 Then build using CMake
 ```
-mkdir build
+mkdir build && cd build
 ```
 
 ```
