@@ -79,9 +79,19 @@ Or APPENDS to file:
 en_utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976 output.txt
 ```
 
-
 ### Decrypting Metadata
 Example:
 ```
 en_utils decrypt_metadata 75c734c6dd1a782de7a965da5eb93125 2642976 72033874
+```
+
+### Generate CSV
+Example:
+```
+en_utils generate_csv 75c734c6dd1a782de7a965da5eb93125 2642976
+```
+
+Or APPENDS to file (table head is added when creating a file):
+```
+en_utils generate_csv 75c734c6dd1a782de7a965da5eb93125 2642976 output.csv
 ```

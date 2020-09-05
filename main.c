@@ -201,5 +201,67 @@ int main(int argc, char **argv) {
         free(encryptedMetadata);
         free(decryptedMetadata);
         free(decryptedMetadataHex);
+    }  else if(!strcmp("generate_csv", action)) {
+
+        if (argc <= 3) {
+            printf("Usage: en_utils generate_csv <tek-hex> <tek-interval> <output_file (optional)>\n");
+            exit(EXIT_FAILURE);
+        }
+
+        int printHeader = 1;
+
+        if (argc >= 5) {
+            char *output_file = argv[4];
+
+            // we check if the file exists already
+            FILE *output_file_fp = NULL;
+            output_file_fp = fopen(output_file, "r");
+
+            if (output_file_fp){
+                printHeader = 0;
+                fclose(output_file_fp);
+            }
+            freopen(output_file, "ab", stdout);
+        }
+
+        ENIntervalNumber startInterval = 0;
+
+        unsigned char * periodKeyHexArr = argv[2];
+
+        if(strlen(periodKeyHexArr) != 32) {
+            fprintf(stderr, "tek size mismatch");
+            exit(EXIT_FAILURE);
+        }
+
+        if (sscanf (argv[3], "%i", &startInterval) != 1) {
+            fprintf(stderr, "tek-interval is not an integer");
+            exit(EXIT_FAILURE);
+        }
+
+        ENPeriodKey periodKey;
+        hex_to_char_arr(periodKeyHexArr, periodKey.b, sizeof(periodKey.b));
+
+        ENPeriodIdentifierKey  periodIdentifierKey;
+        en_derive_period_identifier_key(&periodIdentifierKey, &periodKey);
+
+        ENIntervalNumber interval = startInterval;
+
+        if(printHeader) {
+            printf("TEK, TEK Start Interval, Interval, Interval Identifier\n");
+        }
+
+        for(int i = 0; i < EN_TEK_ROLLING_PERIOD; i++) {
+            ENIntervalIdentifier intervalIdentifier;
+            en_derive_interval_identifier(&intervalIdentifier, &periodIdentifierKey, interval);
+            {
+                PRINT_CHAR_ARR(periodKey.b); printf(", ");
+                printf("%d, %d, ", startInterval, interval);
+                PRINT_CHAR_ARR(intervalIdentifier.b)
+            }
+            printf("\n");
+            interval++;
+        }
+
+        exit(EXIT_SUCCESS);
     }
 }
