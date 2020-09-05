@@ -7,19 +7,7 @@ Take a look at: https://developer.apple.com/documentation/exposurenotification
 ### Using Dockerfile
 
 ```
-docker build . -t en_utils
-```
-
-Running without volumes:
-```
-docker run --rm en_utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976
-```
-
-Running with volume:
-```
-docker run --rm \
-              -v $(pwd):/en-utils \
-              en_utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976 output.txt
+docker build . -t en-utils
 ```
 
 
@@ -44,6 +32,40 @@ make
 
 ## Example Usage
 
+
+### Using Docker
+
+You can either build your own image or use the pre-built one from Dockerhub (https://hub.docker.com/r/covidbraceletprj/en-utils).
+
+#### Using Dockerhub
+Running without volumes:
+```
+docker run --rm covidbraceletprj/en-utils:latest generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976
+```
+
+Running with volume:
+```
+docker run --rm \
+              -v $(pwd):/en-utils \
+              covidbraceletprj/en-utils:latest generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976 output.txt
+```
+
+
+#### Locally tagged
+
+Running without volumes:
+```
+docker run --rm en-utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976
+```
+
+Running with volume:
+```
+docker run --rm \
+              -v $(pwd):/en-utils \
+              en-utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976 output.txt
+```
+
+### Using local binary
 ```
 en_utils generate_identifiers <tek-hex> <tek-interval> <output_file (optional)>
 ```
