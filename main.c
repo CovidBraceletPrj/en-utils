@@ -36,17 +36,17 @@ unsigned char lower_char_to_hex(unsigned char c) {
 }
 
 
-void hex_to_char_arr(unsigned char h[32], unsigned char b[16]) {
-    for(size_t i=0; i < 16; i++) {
+void hex_to_char_arr(unsigned char h[], unsigned char b[], size_t numBytes) {
+    for(size_t i=0; i < numBytes; i++) {
         unsigned char higher = hex_to_lower_char(h[i*2]);
         unsigned char lower = hex_to_lower_char(h[i*2+1]);
         b[i] = (higher << 4) | lower;
     }
 }
 
-void char_to_hex_arr(unsigned char b[16], unsigned char h[32]) {
+void char_to_hex_arr(unsigned char b[], unsigned char h[], size_t numBytes) {
 
-    for(size_t i=0; i < 16; i++) {
+    for(size_t i=0; i < numBytes; i++) {
         unsigned char higher = (b[i] >> 4) & 0xF;
         unsigned char lower = (b[i] & 0xF);
         h[i*2] = lower_char_to_hex(higher);
@@ -87,7 +87,7 @@ void test_conversion() {
 int main(int argc, char **argv) {
 
     if (argc <= 1) {
-        printf("Usage: en-utils generate_identifiers <tek-hex> <tek-interval> <output_file (optional)>\n");
+        printf("Usage: en_utils generate_identifiers <tek-hex> <tek-interval> <output_file (optional)>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     if(!strcmp("generate_identifiers", action)) {
 
         if (argc <= 3) {
-            printf("Usage: en-utils generate_identifiers <tek-hex> <tek-interval> <output_file (optional)>\n");
+            printf("Usage: en_utils generate_identifiers <tek-hex> <tek-interval> <output_file (optional)>\n");
             exit(EXIT_FAILURE);
         }
 
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
             freopen(output_file, "ab", stdout);
         }
 
-        int tekTimestamp = 0;
+        ENIntervalNumber interval = 0;
 
         unsigned char * periodKeyHexArr = argv[2];
 
@@ -116,14 +116,13 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
-        if (sscanf (argv[3], "%i", &tekTimestamp) != 1) {
-            fprintf(stderr, "tek-timestamp is not an integer");
+        if (sscanf (argv[3], "%i", &interval) != 1) {
+            fprintf(stderr, "tek-interval is not an integer");
             exit(EXIT_FAILURE);
         }
 
         ENPeriodKey periodKey;
-        hex_to_char_arr(periodKeyHexArr, periodKey.b);
-        ENIntervalNumber interval = tekTimestamp;
+        hex_to_char_arr(periodKeyHexArr, periodKey.b, sizeof(periodKey.b));
 
         ENPeriodIdentifierKey  periodIdentifierKey;
         en_derive_period_identifier_key(&periodIdentifierKey, &periodKey);
@@ -141,5 +140,66 @@ int main(int argc, char **argv) {
         if(output_file_fp)
             fclose(output_file_fp);
         exit(EXIT_SUCCESS);
+    } else if(!strcmp("decrypt_metadata", action)) {
+
+        if (argc <= 4) {
+            printf("Usage: en_utils decrypt_metadata <tek> <interval> <metadata in hex>\n");
+            exit(EXIT_FAILURE);
+        }
+
+        ENIntervalNumber interval = 0;
+
+        unsigned char * periodKeyHexArr = argv[2];
+
+        if(strlen(periodKeyHexArr) != 32) {
+            fprintf(stderr, "tek size mismatch");
+            exit(EXIT_FAILURE);
+        }
+
+        if (sscanf (argv[3], "%i", &interval) != 1) {
+            fprintf(stderr, "interval is not an integer");
+            exit(EXIT_FAILURE);
+        }
+        printf("Interval: %d\n", interval);
+
+        unsigned char * encryptedMetadataHex = argv[4];
+
+        if(strlen(encryptedMetadataHex) == 0) {
+            fprintf(stderr, "Empty metadata");
+            exit(EXIT_FAILURE);
+        }
+
+        if(strlen(encryptedMetadataHex) % 2 != 0) {
+            fprintf(stderr, "Metadata needs to have an even hex length!");
+            exit(EXIT_FAILURE);
+        }
+
+        size_t byteLength = strlen(encryptedMetadataHex)/2;
+
+        unsigned char * encryptedMetadata = malloc(byteLength);
+        unsigned char * decryptedMetadata = malloc(byteLength);
+        unsigned char * decryptedMetadataHex = malloc(byteLength*2);
+        hex_to_char_arr(encryptedMetadataHex, encryptedMetadata, byteLength);
+
+        ENPeriodKey periodKey;
+        hex_to_char_arr(periodKeyHexArr, periodKey.b, sizeof(periodKey.b));
+
+        ENPeriodMetadataEncryptionKey metadataEncryptionKey;
+        ENPeriodIdentifierKey periodIdentifierKey;
+        ENIntervalIdentifier intervalIdentifier;
+
+        en_derive_period_identifier_key(&periodIdentifierKey, &periodKey);
+        en_derive_interval_identifier(&intervalIdentifier, &periodIdentifierKey, interval);
+        en_derive_period_metadata_encryption_key(&metadataEncryptionKey, &periodKey);
+
+        en_decrypt_interval_metadata(&metadataEncryptionKey, &intervalIdentifier, encryptedMetadata, decryptedMetadata, byteLength);
+
+        char_to_hex_arr(decryptedMetadata, decryptedMetadataHex, byteLength);
+
+        printf("%.*s\n", byteLength*2, decryptedMetadataHex);
+
+        free(encryptedMetadata);
+        free(decryptedMetadata);
+        free(decryptedMetadataHex);
     }
 }

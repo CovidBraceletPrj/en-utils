@@ -30,8 +30,7 @@ cmake ..
 make
 ```
 
-## Example Usage
-
+## Usage
 
 ### Using Docker
 
@@ -78,4 +77,11 @@ en_utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976
 Or APPENDS to file:
 ```
 en_utils generate_identifiers 75c734c6dd1a782de7a965da5eb93125 2642976 output.txt
+```
+
+
+### Decrypting Metadata
+Example:
+```
+en_utils decrypt_metadata 75c734c6dd1a782de7a965da5eb93125 2642976 72033874
 ```
