@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include "exposure-notification.h"
 
-typedef struct HexString { unsigned char h[32];} _HexString;
-
 
 #define PRINT_CHAR_ARR(arr) for(size_t i = 0; i < sizeof(arr)/sizeof(arr[0]); i++){ printf("%02x", arr[i]);}
 #define PRINT_HEX_ARR(arr) for(size_t i = 0; i < sizeof(arr)/sizeof(arr[0]); i++){ printf("%c", arr[i]);}

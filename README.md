@@ -4,20 +4,22 @@ Take a look at: https://developer.apple.com/documentation/exposurenotification
 
 ## Compilation
 
+Go into the git directory,
+
+Install mbedtls dependency:
+```
+git submodule update --init --recursive
+```
+
 ### Using Dockerfile
 
 ```
 docker build . -t en-utils
 ```
 
-
-
 ### CMake
-Install mbedtls dependency:
-```
-git submodule update --init --recursive
-```
-Then build using CMake
+
+Build using CMake
 ```
 mkdir build && cd build
 ```

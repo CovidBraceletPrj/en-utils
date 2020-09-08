@@ -8,7 +8,7 @@ RUN apk add cmake
 COPY . /usr/src/en-utils
 WORKDIR /usr/src/en-utils
 
-RUN ls -la
+
 RUN rm -rf build
 RUN mkdir build
 
