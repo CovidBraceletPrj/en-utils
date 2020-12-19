@@ -34,6 +34,7 @@ unsigned char lower_char_to_hex(unsigned char c) {
 }
 
 
+
 void hex_to_char_arr(unsigned char h[], unsigned char b[], size_t numBytes) {
     for(size_t i=0; i < numBytes; i++) {
         unsigned char higher = hex_to_lower_char(h[i*2]);
@@ -82,6 +83,11 @@ void test_conversion() {
 }
 
 
+int is_period_start(ENIntervalNumber interval) {
+    return interval % EN_TEK_ROLLING_PERIOD == 0;
+}
+
+
 int main(int argc, char **argv) {
 
     if (argc <= 1) {
@@ -118,6 +124,12 @@ int main(int argc, char **argv) {
             fprintf(stderr, "tek-interval is not an integer");
             exit(EXIT_FAILURE);
         }
+
+        if (!is_period_start(interval)) {
+            fprintf(stderr, "tek-interval is not a start interval of a period");
+            exit(EXIT_FAILURE);
+        }
+
 
         ENPeriodKey periodKey;
         hex_to_char_arr(periodKeyHexArr, periodKey.b, sizeof(periodKey.b));
@@ -159,6 +171,11 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
         printf("Interval: %d\n", interval);
+
+        if (!is_period_start(interval)) {
+            fprintf(stderr, "tek-interval is not a start interval of a period");
+            exit(EXIT_FAILURE);
+        }
 
         unsigned char * encryptedMetadataHex = argv[4];
 
@@ -236,6 +253,11 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
+        if (!is_period_start(startInterval)) {
+            fprintf(stderr, "tek-interval is not a start interval of a period");
+            exit(EXIT_FAILURE);
+        }
+
         ENPeriodKey periodKey;
         hex_to_char_arr(periodKeyHexArr, periodKey.b, sizeof(periodKey.b));
 
@@ -243,6 +265,7 @@ int main(int argc, char **argv) {
         en_derive_period_identifier_key(&periodIdentifierKey, &periodKey);
 
         ENIntervalNumber interval = startInterval;
+
 
         if(printHeader) {
             printf("TEK, TEK Start Interval, Interval, Interval Identifier\n");
