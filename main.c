@@ -261,5 +261,37 @@ int main(int argc, char **argv) {
         }
 
         exit(EXIT_SUCCESS);
+    } else if(!strcmp("generate_metadata_key", action)) {
+
+        if (argc < 4) {
+            printf("Usage: en_utils generate_metadata_key <tek-hex> <tek-interval>\n");
+            exit(EXIT_FAILURE);
+        }
+
+        ENIntervalNumber interval = 0;
+
+        unsigned char * periodKeyHexArr = argv[2];
+
+        if(strlen(periodKeyHexArr) != 32) {
+            fprintf(stderr, "tek size mismatch");
+            exit(EXIT_FAILURE);
+        }
+
+        if (sscanf (argv[3], "%i", &interval) != 1) {
+            fprintf(stderr, "interval is not an integer");
+            exit(EXIT_FAILURE);
+        }
+
+        ENPeriodKey periodKey;
+        hex_to_char_arr(periodKeyHexArr, periodKey.b, sizeof(periodKey.b));
+
+        ENPeriodMetadataEncryptionKey metadataEncryptionKey;
+        en_derive_period_metadata_encryption_key(&metadataEncryptionKey, &periodKey);
+
+        unsigned char metadataKeyHex[32];
+        char_to_hex_arr(metadataEncryptionKey.b, metadataKeyHex, 16);
+
+        printf("%.*s\n", 16*2, metadataKeyHex);
+        exit(EXIT_SUCCESS);
     }
 }

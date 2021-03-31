@@ -87,6 +87,13 @@ Example:
 en_utils decrypt_metadata 75c734c6dd1a782de7a965da5eb93125 2642976 72033874
 ```
 
+
+### Create Metadata-Encryption-Key
+Example:
+```
+en_utils generate_metadata_key 75c734c6dd1a782de7a965da5eb93125 2642976
+```
+
 ### Generate CSV
 Example:
 ```
